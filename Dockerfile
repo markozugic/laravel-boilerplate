@@ -12,5 +12,5 @@ COPY ./docker/custom.ini /usr/local/etc/php/conf.d/custom.ini
 
 RUN set -ex && \
     apk update && \
-    composer install && \
+    apk add composer && \
     chown -R www-data:www-data /app/storage /app/bootstrap/cache

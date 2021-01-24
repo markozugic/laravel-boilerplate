@@ -14,3 +14,6 @@ RUN set -ex && \
     apk update && \
     apk add composer && \
     chown -R www-data:www-data /app/storage /app/bootstrap/cache
+
+# Install Extensions
+RUN docker-php-ext-install pdo pdo_mysql

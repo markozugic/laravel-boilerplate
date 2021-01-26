@@ -65,3 +65,9 @@ if [ $? -ne 0 ]; then
     err "Error while running database migrations."
 fi
 
+log "Setting permissions for storage and bootstrap cache, this might ask you for your password"
+sudo chmod -R 777 src/storage src/bootstrap/cache
+if [ $? -ne 0 ]; then
+    err "Error while setting permissions."
+fi
+

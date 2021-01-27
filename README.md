@@ -40,8 +40,8 @@ In order to run script all you have to do is run `chmod +x init && ./init`
 
 - Copy content from .env.example in .env (`cp .env.example .env`)
 
-- Generate JWT secret key
-  `docker exec -it laravel php artisan jwt:secret`
+<!-- - Generate JWT secret key
+  `docker exec -it laravel php artisan jwt:secret` -->
 
 ### Set directory permissions
 

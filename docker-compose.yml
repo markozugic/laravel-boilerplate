@@ -110,10 +110,10 @@ services:
   phpstan:
     image: php:fpm-alpine
     volumes:
-      - ./:/var/www/html
+      - ./src/:/var/www/html
     working_dir: /var/www/html
     entrypoint: ["vendor/bin/phpstan"]
-    container_name: dating_phpstan
+    container_name: phpstan
     profiles: [ "ignore" ]
 
 volumes:

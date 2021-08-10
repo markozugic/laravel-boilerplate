@@ -107,14 +107,14 @@ services:
     container_name: composer
     profiles: [ "ignore" ]
 
-  # phpstan:
-  #   image: php:fpm-alpine
-  #   volumes:
-  #     - ./:/var/www/html
-  #   working_dir: /var/www/html
-  #   entrypoint: ["vendor/bin/phpstan"]
-  #   container_name: dating_phpstan
-  #   profiles: [ "ignore" ]
+  phpstan:
+    image: php:fpm-alpine
+    volumes:
+      - ./:/var/www/html
+    working_dir: /var/www/html
+    entrypoint: ["vendor/bin/phpstan"]
+    container_name: dating_phpstan
+    profiles: [ "ignore" ]
 
 volumes:
   mysql-data:

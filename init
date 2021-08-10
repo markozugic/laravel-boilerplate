@@ -72,5 +72,6 @@ fi
 
 log "Copying the pre commit hook"
 cp pre-commit .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
 
 log "Finished."

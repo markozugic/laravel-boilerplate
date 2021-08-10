@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 
 class Test extends Controller
 {
-    public function test() {
+    public function test()
+    {
         $v = 1;
+        $v = 's';
     }
 }

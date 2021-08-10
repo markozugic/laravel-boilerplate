@@ -16,16 +16,17 @@ function __run() #(step, name, cmd)
     exitcode=$?
 
     if [[ 0 == $exitcode || 130 == $exitcode ]]; then
-        echo -e "${C_GREEN}OK!${C_RESET}"
+        echo -e "OK!"
     else
-        echo -e "${C_RED}NOK!${C_RESET}\n\n$output"
+        echo -e "NOK!\n\n$output"
         exit 1
     fi
 }
 
 modified="git diff --diff-filter=M --name-only --cached  | grep \".php$\""
 ignore="resources/lang,resources/views,bootstrap/helpers,database/migrations,bin"
-phpcs="docker exec -it php /vendor/bin/phpcs --report=code --colors --report-width=80 --standard=PSR2 --ignore=${ignore}"
+phplint="php -l"
+phpcs="./src/vendor/bin/phpcs --report=code --colors --report-width=80 --standard=PSR2 --ignore=${ignore}"
 
-__run "1/2" "php lint" "${modified} | xargs -r  docker exec -it php php -l"
+__run "1/2" "php lint" "${modified} | xargs -r ${phplint}"
 __run "2/2" "php code sniffer" "${modified} | xargs -r ${phpcs}"

@@ -29,4 +29,4 @@ phpcs="./src/vendor/bin/phpcs --report=code --colors --report-width=80 --standar
 
 __run "1/3" "docker exec -it php php lint" "${modified} | xargs -r php -l"
 __run "2/3" "docker exec -it php code sniffer" "${modified} | xargs -r ${phpcs}"
-__run "3/3" "docker-compose run --rm phpstan analyse src src/tests"
+__run "3/3" "docker exec -it php phpstan" "${modified} | xargs -r ./src/vendor/bin/phpstan analyse src"

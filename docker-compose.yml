@@ -1,78 +1,125 @@
-version: '3'
+version: "3.9"
+
 services:
-  laravel:
+  nginx:
+    image: nginx:stable-alpine
+    ports:
+      - 8000:80
+    volumes:
+      - ./src/:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+    container_name: web
+
+  php:
     build:
-      context: .
-    container_name: laravel
+      context: ./docker
+      dockerfile: Dockerfile
+    volumes:
+      - ./src/:/var/www/html
     depends_on:
       - db
-    volumes:
-      - ./src:/app
-
-  web:
-    image: nginx
-    container_name: web
-    depends_on:
-      - laravel
-    environment:
-      - NGINX_SERVER_NAME=_
-      - NGINX_PORT=80
-      - NGINX_MAX_BODY=100M
-      - NGINX_LARAVEL_HOST=laravel
-    command: > 
-      /bin/bash -c "envsubst \"`for v in $$(compgen -v);do printf '$${%s} ' $$v;done`'\" < /etc/nginx/conf.d/vhost.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
-    ports:
-      - 80:80
-      - 443:443
-    volumes:
-      - ./src:/app
-      - ./docker/vhost.template:/etc/nginx/conf.d/vhost.template
+    container_name: php
 
   db:
     image: mysql:5.7
-    container_name: db
-    environment:
-      MYSQL_DATABASE: laravel
-      MYSQL_USER: laravel
-      MYSQL_PASSWORD: laravel
-      MYSQL_ROOT_PASSWORD: root
+    command: --default-authentication-plugin=mysql_native_password --max_allowed_packet=32505856
+    restart: always
     ports:
-      - 3306:3306
+      - 4306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: "secret"
+      MYSQL_DATABASE: "laravel"
     volumes:
-      - db_data:/var/lib/mysql
+      - mysql-data:/var/lib/mysql
+    container_name: db
 
   # redis:
-  #   container_name: redis
-  #   image: 'redis:alpine'
-
-  # beanstalk:
-  #   container_name: beanstalk
-  #   image: 'jonbaldie/beanstalkd'
-
-
-  # Queue Example
-  # queue:
-  #   image: php:fpm-alpine
-  #   container_name: queue
-  #   depends_on:
-  #     - beanstalk
-  #     - redis
-  #     - db
-  #   command: php /app/artisan queue:work --tries=2 --timeout=150
+  #   image: redis:6-alpine
   #   volumes:
-  #     - ./src:/app
+  #     - redis-data:/data
+  #   restart: unless-stopped
+  #   ports:
+  #     - 6379:6379
+  #   container_name: dating_redis
 
-  # Scheduler Example
-  # scheduler:
-  #   image: php:fpm-alpine
-  #   container_name: scheduler
+  # echo-server:
+  #   image: oanhnn/laravel-echo-server:latest
+  #   ports:
+  #     - 6001:6001
+  #   tty: true
+  #   environment:
+  #     LARAVEL_ECHO_SERVER_DEBUG: 'true'
+  #     LARAVEL_ECHO_SERVER_DB: redis
+  #     REDIS_HOST: redis
+  #     REDIS_PORT: 6379
+  #     REDIS_DB: 0
+  #   container_name: echo_server
   #   depends_on:
-  #     - beanstalk
   #     - redis
-  #     - db
-  #   command: sh -c "cd /app && while true; do sleep 60 && php artisan schedule:run; done"
   #   volumes:
-  #     - ./src:/app
+  #   - ./docker/echo_server/laravel-echo-server.json:/app/laravel-echo-server.json
+  #   restart: unless-stopped
+
+  mail:
+    image: mailhog/mailhog
+    user: root
+    restart: always
+    tty: true
+    privileged: true
+    ports:
+      - 1025:1025
+      - 8025:8025
+    command: [ "-storage=maildir", "-maildir-path=/maildir" ]
+    volumes:
+      - mail_data:/maildir
+    container_name: mail
+
+  npm:
+    image: node:12-alpine
+    volumes:
+      - ./src/:/var/www/html
+    working_dir: /var/www/html
+    entrypoint: ["npm"]
+    container_name: npm
+    profiles: ["ignore"]
+
+  artisan:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile
+    volumes:
+      - ./src/:/var/www/html
+    working_dir: /var/www/html
+    depends_on:
+      - php
+    entrypoint: ["php", "/var/www/html/artisan"]
+    container_name: artisan
+    profiles: [ "ignore" ]
+
+  composer:
+    image: composer:1.10.22
+    volumes:
+      - ./src/:/var/www/html
+    working_dir: /var/www/html
+    entrypoint: ["composer", "--ignore-platform-reqs"]
+    container_name: composer
+    profiles: [ "ignore" ]
+
+  # phpstan:
+  #   image: php:fpm-alpine
+  #   volumes:
+  #     - ./:/var/www/html
+  #   working_dir: /var/www/html
+  #   entrypoint: ["vendor/bin/phpstan"]
+  #   container_name: dating_phpstan
+  #   profiles: [ "ignore" ]
 
 volumes:
-  db_data:
+  mysql-data:
+    driver: local
+  redis-data:
+    driver: local
+  mail_data:
+    driver: local

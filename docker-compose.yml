@@ -14,7 +14,7 @@ services:
 
   php:
     build:
-      context: ./docker
+      context: .
       dockerfile: Dockerfile
     volumes:
       - ./src/:/var/www/html
@@ -87,7 +87,7 @@ services:
 
   artisan:
     build:
-      context: ./docker
+      context: .
       dockerfile: Dockerfile
     volumes:
       - ./src/:/var/www/html

@@ -22,9 +22,6 @@ RUN apk add --no-cache \
     && docker-php-ext-enable gd \
     && docker-php-ext-install exif \
     && apk del --no-cache \
-    freetype-dev \
-    libjpeg-turbo-dev \
-    libpng-dev \
     && rm -rf /tmp/*
 
 # Add `www-data` to group `appuser`
